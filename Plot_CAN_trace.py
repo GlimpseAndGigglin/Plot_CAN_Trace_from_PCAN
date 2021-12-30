@@ -16,8 +16,11 @@
 # # Read and Plot CAN trace data collected via Peak Adapter
 #     Name : Sanghyeok Lee
 #     Created date : July 31, 2021 (Saturday) 05:41 pm
-#     Modified : September 26, 2021 (Sunday) 10:47 am
-#     Modified : Octoboer 09, 2021 (Saturday) 02:07 pm
+#     Updated : September 26, 2021 (Sunday) 10:47 am
+#     Updated : Octoboer 09, 2021 (Saturday) 02:07 pm
+#     Updated : Octoboer 24, 2021 (Sunday) 05:34 pm
+#     Updated : December 30, 2021 (Thursday) 10:45 am in Jeju Island
+#     
 #     
 #     
 
@@ -314,18 +317,44 @@ TRC_read['Data'][2]
 #
 # Try this later :  Plot with an input of SPN ( find its PGN, start position, length, scaling, offset from J1939DA)
 #
+# ### I need to filter the data with a given SPN
 
 # +
+# Filtering
+import numpy as np
+
 PGN_1_dec = 61444
 PGN_1_source_address = 0
+PGN_1_source_address_hex = hex(PGN_1_source_address)[2:].upper().zfill(2)
+# print(f'PGN_1_source_address_hex : {PGN_1_source_address_hex}')
 # SPN_1 = 644
 SPN_1_start_byte = 4
 SPN_1_start_bit = 1
 SPN_1_length_bit = 16 # 2 bytes
 SPN_1_scale = 0.125
 SPN_1_offset = 0
+PGN_1_hex = hex(PGN_1_dec)[2:].upper().zfill(4) # remove "0x", make all the alphabets capitals 
+# print(f'PGN_1_hex : {PGN_1_hex}')
+
+#test 
+# print('-- test --')
+# print(TRC_read['ID'][42])  #1CEBF900
+# print(TRC_read['ID'][42][2:6]) #PGN
+# print(TRC_read['ID'][42][6:8]) #Source Address
+# print(TRC_read['ID'][42][2:6].find(PGN_1_hex) != -1)
+# print(TRC_read['ID'][42][6:8].find(PGN_1_source_address_hex) != -1)
+
+# print(type(TRC_read['ID'][0]))
+# print(len_data_rows)
+# print(str(TRC_read))
+# Create a vector for boolean indexing. I am going to filter the data with boolean indexing
+
+FilterByPGN_1 =np.zeros((len_data_rows,1),dtype=bool)
+# print(len(FilterByPGN_1))
+for i in range(1, len_data_rows):
+    FilterByPGN_1[i] = (TRC_read['ID'][i][2:6].find(PGN_1_hex) != -1 ) & (TRC_read['ID'][i][6:8].find(PGN_1_source_address_hex) != -1)
 
 
-PGN_1_filter = hex(PGN_1_dec)[2:]
-DF_PGN_1 = TRC_read[]
+DF_PGN_1 = TRC_read[FilterByPGN_1]
+print(str(DF_PGN_1))
 
